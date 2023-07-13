@@ -1,0 +1,142 @@
+---
+title: "Effects of COVID19"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(fig.pos = 'H')
+```
+
+# Introduction 
+
+The COVID-19 pandemic has adversely affected people's well-being, that is, socially, psychologically, and economically. Due to the strict guidelines set to control and manage the virus, most people developed a sense of alienation. Some were disconnected from their family and lost job their jobs. In this report, a comprehensive descriptive analysis was conducted, and findings outlines so as to be used in formulating recommendations fro policy interventions and future research.
+
+## Exploratory analysis
+
+The dataset has four variables, namely, alienation, income, consult, and male. The first step was to calculate the mean, median, standard deviation, and range of the alienation variable.
+
+```{r}
+data<-read.csv("C:\\Users\\user\\Downloads\\Mathematics and Statistics in R Dataset.csv")
+df<-na.omit(data)
+
+## Alienation
+mean.al<-mean(df$alienation)
+median.al<-median(df$alienation)
+range.al<-range(df$alienation)
+sd.al<-sd(df$alienation)
+cbind(mean.al,median.al,range.al,sd.al)
+
+```
+In addition, the alienation variable was used to plot an histogram. The histogram was used to explore the variable's distribution. Based on the histogram, alienation was not normally distributed.
+```{r}
+hist(data$alienation, main = "Histogram of Alienation Scores",xlab="Alienation Score", ylab="Frequency")
+```
+The alienation variables can also be grouped  based on gender, that is, male or female. Afterwards, the summary statistics were calculated separately based on these two groups.
+```{r}
+# change to factor variable
+library(dplyr)
+df %>%
+    group_by(male) %>% 
+    summarise(mean.alienation = mean(alienation),median.alienation=median(alienation),sd.alienation=sd(alienation))
+```
+The next variable to analyse was income. The table below shows the summary statistics of income. In addition, an histogram was plotted so as to evaluate the variable's distribution.  It was concluded that income is not normally distributed. The sample was divided into male and female groups, it is possible to compare the relationship between gender and income
+```{r}
+# Income
+df %>%
+    summarise(mean.income = mean(income),median.Income=median(income),sd.Income=sd(income))
+
+
+hist(df$income, main = "Histogram of Income",
+     xlab="Income ", ylab="Frequency")
+```
+
+```{r}
+# Gender(male vs female)
+df %>%
+    group_by(male) %>% 
+    summarise(mean.income = mean(income),median.Income=median(income),sd.Income=sd(income))
+```
+
+```{r}
+# Missing
+which(is.na(data))
+
+# Sought help
+df$consult<-as.factor(df$consult)
+summary(df$consult)
+```
+
+```{r}
+txt<-table(df$male, df$consult)
+txt
+## Relationship between male and consult
+library(vcd)
+mosaicplot(txt, color = c("#009E73", "#D55E00"))
+
+```
+
+## Combinations
+To evaluate the number of possible combination of 3, the following formula can be used:
+C(n,k) = n! / (k! * (n-k)!) or the r function choose()
+
+```{r}
+choose(100,3)
+```
+
+```{r}
+choose(40, 1) * choose(60, 2)
+
+```
+
+```{r}
+choose(100, 3) - choose(60, 3)
+```
+
+# Currency Shift
+First, let's convert US dollars to Euros with the most recent rate of 1 USD= 0.87 EUR
+```{r}
+df$EUR <- df$income * 0.87
+mean(df$income) # in USD
+sd(df$income) 
+
+mean(df$EUR) # in Euros
+sd(df$EUR) 
+
+```
+Since Euros are more valuable relative to the US dollar, the expectation was that the income variable  would have lower mean and median. After calculation these summary statistics were significantly smaller. 
+
+## Centered Income Variable
+```{r}
+
+mean.income <- mean(df$income)
+
+# Calculate centered income variable
+df$centered.income <- df$income - mean.income
+
+# Calculate mean and standard deviation of centered income
+mean(df$centered.income)
+sd(df$centered.income)
+```
+The mean is very close to zero, however the standard deviation of the centered income variable was the similar to the initial income variable.
+
+```{r}
+form1 <- function(income) {
+  5.56 - 0.073 * income
+}
+
+form2 <- function(income) {
+  4.80 - 0.030 * income
+}
+
+# Set them to be equal to each other. 
+a<-uniroot(function(income) form1(income) - form2(income), c(0, 100000))
+a$root^2  # Square the root
+
+```
+The root of the income level 312.3851 
+
+## Appendix
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+```
